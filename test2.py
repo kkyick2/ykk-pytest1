@@ -1,27 +1,24 @@
-__author__ = 'ykk'
+""" bank01: The single non-random Customer """           
+from SimPy.Simulation import *                           
 
-import urllib2
+## Model components -----------------------------        
 
-url = "http://download.thinkbroadband.com/10MB.zip"
+class Customer(Process):                                 
+    """ Customer arrives, looks around and leaves """
+        
+    def visit(self,timeInBank):                          
+        print now(),self.name," Here I am"               
+        yield hold,self,timeInBank                       
+        print now(),self.name," I must leave"            
 
-file_name = url.split('/')[-1]
-u = urllib2.urlopen(url)
-f = open(file_name, 'wb')
-meta = u.info()
-file_size = int(meta.getheaders("Content-Length")[0])
-print "Downloading: %s Bytes: %s" % (file_name, file_size)
+## Experiment data ------------------------------
 
-file_size_dl = 0
-block_sz = 8192
-while True:
-    buffer = u.read(block_sz)
-    if not buffer:
-        break
+maxTime = 100.0     # minutes                            
+timeInBank = 10.0   # minutes
 
-    file_size_dl += len(buffer)
-    f.write(buffer)
-    status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-    status = status + chr(8) * (len(status) + 1)
-    print status,
+## Model/Experiment ------------------------------
 
-f.close()
+initialize()                                             
+c = Customer(name="Klaus")                               
+activate(c,c.visit(timeInBank),at=5.0)                   
+simulate(until=maxTime)   
